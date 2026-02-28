@@ -12,28 +12,44 @@ const POINTS = [
   { x: 100, y: 88 },
 ];
 
+const PREDICTIONS = [
+  { x: 100, y: 88 },
+  { x: 120, y: 92 },
+  { x: 140, y: 95 },
+  { x: 160, y: 94 },
+];
+
 export function TrendChart() {
   const pathData = POINTS.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${100 - p.y}`).join(' ');
+  const predictionData = PREDICTIONS.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${100 - p.y}`).join(' ');
 
   return (
-    <div className="w-full h-full p-6 flex flex-col justify-between">
-      <div className="flex justify-between items-center mb-4">
-        <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Cognitive Velocity Trend</h4>
-        <span className="text-emerald-500 text-[10px] font-bold">+4.2% Growth</span>
+    <div className="w-full h-full p-8 flex flex-col justify-between">
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Cognitive Velocity Trend</h4>
+          <p className="text-[8px] font-bold text-blue-500/50 uppercase tracking-widest mt-1">Real-time + Predictive Ensemble</p>
+        </div>
+        <div className="text-right">
+          <span className="text-emerald-500 text-[10px] font-bold">+4.2% Growth</span>
+          <p className="text-[8px] font-bold text-slate-600 uppercase tracking-widest">Confidence: 94%</p>
+        </div>
       </div>
       
       <div className="flex-1 relative">
-        <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible" preserveAspectRatio="none">
+        <svg viewBox="0 0 160 100" className="w-full h-full overflow-visible" preserveAspectRatio="none">
+          {/* Grid Lines */}
           {[0, 25, 50, 75, 100].map((line) => (
             <line
               key={line}
-              x1="0" y1={line} x2="100" y2={line}
+              x1="0" y1={line} x2="160" y2={line}
               stroke="white"
               strokeOpacity="0.05"
               strokeWidth="0.5"
             />
           ))}
           
+          {/* Trend Line (Past) */}
           <motion.path
             d={pathData}
             fill="none"
@@ -45,14 +61,42 @@ export function TrendChart() {
             animate={{ pathLength: 1 }}
             transition={{ duration: 2, ease: "easeInOut" }}
           />
+
+          {/* Forecast Trail (Future) */}
+          <motion.path
+            d={predictionData}
+            fill="none"
+            stroke="#3B82F6"
+            strokeWidth="1.5"
+            strokeDasharray="4 4"
+            strokeOpacity="0.4"
+            initial={{ pathLength: 0 }}
+            animate={{ pathLength: 1 }}
+            transition={{ duration: 1.5, delay: 2, ease: "easeOut" }}
+          />
           
+          {/* Indicator Pulse at current time */}
+          <motion.circle
+            cx="100"
+            cy={100 - 88}
+            r="3"
+            stroke="#3B82F6"
+            strokeWidth="1"
+            fill="transparent"
+            animate={{ scale: [1, 2, 1], opacity: [0.5, 0, 0.5] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          />
+
+          {/* Points (Past) */}
           {POINTS.map((p, i) => (
             <motion.circle
               key={i}
               cx={p.x}
               cy={100 - p.y}
               r="1.5"
-              fill="#3B82F6"
+              fill={i === POINTS.length - 1 ? "#3B82F6" : "#1E293B"}
+              stroke="#3B82F6"
+              strokeWidth="0.5"
               initial={{ opacity: 0, scale: 0 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 1.5 + i * 0.1 }}
@@ -68,9 +112,9 @@ export function TrendChart() {
         </svg>
       </div>
 
-      <div className="flex justify-between mt-4 text-[8px] font-bold text-slate-700 uppercase tracking-widest">
-        <span>Week 01</span>
-        <span>Week 04</span>
+      <div className="flex justify-between mt-6 text-[8px] font-bold text-slate-700 uppercase tracking-[0.3em]">
+        <span>Historical Vector</span>
+        <span className="text-blue-500/50">4-Week Projection</span>
       </div>
     </div>
   );

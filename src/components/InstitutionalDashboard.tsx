@@ -2,12 +2,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Users, Activity, AlertTriangle, BookOpen, GraduationCap, TrendingUp, Search, BarChart3, Globe, Zap, Cpu, Wifi, Command } from 'lucide-react';
+import { Users, Activity, AlertTriangle, BookOpen, GraduationCap, TrendingUp, Search, BarChart3, Globe, Zap, Cpu, Wifi, Command, Share2 } from 'lucide-react';
 import { HeatmapSVG } from './HeatmapSVG';
 import { TrendChart } from './TrendChart';
 import { StudentModal } from './StudentModal';
 import { InstitutionalPDF } from './InstitutionalPDF';
 import { CommandPalette } from './CommandPalette';
+import { CognitiveTopology } from './CognitiveTopology';
 
 export function InstitutionalDashboard() {
   const [selectedStudent, setSelectedStudent] = useState<any>(null);
@@ -15,7 +16,8 @@ export function InstitutionalDashboard() {
   const [isCommandOpen, setIsCommandOpen] = useState(false);
   const [filter, setFilter] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
-  const [viewMode, setViewMode] = useState<'standard' | 'comparison'>('standard');
+  const [viewMode, setViewMode] = useState<'standard' | 'comparison' | 'topology'>('standard');
+  const [neuralPulse, setNeuralPulse] = useState(false);
   
   // Simulation State
   const [liveStats, setLiveStats] = useState({
@@ -35,9 +37,15 @@ export function InstitutionalDashboard() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Live Simulation Engine
+  // Live Simulation Engine & Neural Pulse Trigger
   useEffect(() => {
     const interval = setInterval(() => {
+      const pingChange = Math.random() > 0.8;
+      if (pingChange) {
+        setNeuralPulse(true);
+        setTimeout(() => setNeuralPulse(false), 1000);
+      }
+
       setLiveStats(prev => ({
         scans: prev.scans + (Math.random() > 0.7 ? 1 : 0),
         mastery: +(prev.mastery + (Math.random() - 0.5) * 0.1).toFixed(1),
@@ -63,13 +71,6 @@ export function InstitutionalDashboard() {
     { id: '2414', grade: '9', subject: 'Math', risk: 55, status: 'At-Risk' },
   ];
 
-  const cohorts = [
-    { name: 'Grade 09', mastery: 68, risk: 18, color: 'text-blue-500' },
-    { name: 'Grade 10', mastery: 72, risk: 24, color: 'text-emerald-500' },
-    { name: 'Grade 11', mastery: 84, risk: 8, color: 'text-amber-500' },
-    { name: 'Grade 12', mastery: 91, risk: 4, color: 'text-rose-500' },
-  ];
-
   const filteredStudents = students.filter(s => {
     const matchesSearch = s.id.includes(searchQuery);
     const matchesFilter = filter === 'All' || s.status === filter;
@@ -81,9 +82,6 @@ export function InstitutionalDashboard() {
       const el = document.getElementById('search-input');
       el?.focus();
     }
-    if (action === 'export-report') {
-      // Logic is handled by InstitutionalPDF
-    }
     if (action === 'clear-filters') {
       setFilter('All');
       setSearchQuery('');
@@ -91,24 +89,38 @@ export function InstitutionalDashboard() {
   };
 
   return (
-    <div id="institutional-dashboard" className="min-h-screen pt-24 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+    <div id="institutional-dashboard" className="min-h-screen pt-24 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full relative">
+      {/* Neural Pulse Overlay */}
+      <AnimatePresence>
+        {neuralPulse && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 pointer-events-none z-[100] border-[1px] border-blue-500/20 shadow-[inset_0_0_100px_rgba(59,130,246,0.1)]"
+          />
+        )}
+      </AnimatePresence>
+
       <CommandPalette 
         isOpen={isCommandOpen} 
         onClose={() => setIsCommandOpen(false)} 
         onSelectAction={handleCommandAction}
       />
 
+      {/* SYSTEM HEALTH TICKER */}
       <div className="mb-8 flex justify-end gap-6 border-b border-white/[0.03] pb-4">
         <div className="flex items-center gap-2">
            <Cpu className="w-3 h-3 text-blue-500/50" />
            <span className="text-[8px] font-bold text-slate-700 uppercase tracking-[0.2em]">Core Usage: 14%</span>
         </div>
         <div className="flex items-center gap-2">
-           <Wifi className="w-3 h-3 text-emerald-500/50" />
+           <Wifi className={`w-3 h-3 transition-colors ${neuralPulse ? 'text-blue-500' : 'text-emerald-500/50'}`} />
            <span className="text-[8px] font-bold text-slate-700 uppercase tracking-[0.2em]">Latency: {liveStats.ping}ms</span>
         </div>
       </div>
 
+      {/* HEADER */}
       <div className="mb-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-10">
         <motion.div 
           initial={{ opacity: 0, x: -20 }}
@@ -120,20 +132,26 @@ export function InstitutionalDashboard() {
             <span className="h-px w-8 bg-blue-500/50"></span>
             <span className="text-[10px] font-bold tracking-[0.4em] text-slate-500 uppercase italic">Institutional Monitoring</span>
           </div>
-          <h2 className="text-4xl font-serif font-light text-white leading-tight">System Intelligence Snapshot</h2>
+          <h2 className="text-4xl font-serif font-light text-white leading-tight">Intelligence Snapshot</h2>
           
-          <div className="flex gap-4">
+          <div className="flex flex-wrap gap-4">
             <button 
               onClick={() => setViewMode('standard')}
-              className={`flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest px-4 py-2 rounded-full border transition-all ${viewMode === 'standard' ? 'bg-blue-600 border-blue-600 text-white' : 'border-white/10 text-slate-500 hover:text-white'}`}
+              className={`flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest px-4 py-2 rounded-full border transition-all ${viewMode === 'standard' ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-600/20' : 'border-white/10 text-slate-500 hover:text-white'}`}
             >
               <Activity className="w-3 h-3" /> Real-time Nodes
             </button>
             <button 
               onClick={() => setViewMode('comparison')}
-              className={`flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest px-4 py-2 rounded-full border transition-all ${viewMode === 'comparison' ? 'bg-blue-600 border-blue-600 text-white' : 'border-white/10 text-slate-500 hover:text-white'}`}
+              className={`flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest px-4 py-2 rounded-full border transition-all ${viewMode === 'comparison' ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-600/20' : 'border-white/10 text-slate-500 hover:text-white'}`}
             >
               <BarChart3 className="w-3 h-3" /> Cohort Cross-Section
+            </button>
+            <button 
+              onClick={() => setViewMode('topology')}
+              className={`flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest px-4 py-2 rounded-full border transition-all ${viewMode === 'topology' ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-600/20' : 'border-white/10 text-slate-500 hover:text-white'}`}
+            >
+              <Share2 className="w-3 h-3" /> Neural Topology
             </button>
           </div>
         </motion.div>
@@ -152,7 +170,7 @@ export function InstitutionalDashboard() {
       </div>
 
       <AnimatePresence mode="wait">
-        {viewMode === 'standard' ? (
+        {viewMode === 'standard' && (
           <motion.div
             key="standard"
             initial={{ opacity: 0, y: 10 }}
@@ -160,6 +178,7 @@ export function InstitutionalDashboard() {
             exit={{ opacity: 0, scale: 0.98 }}
             className="space-y-10"
           >
+            {/* STATS GRID */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               {stats.map((stat, i) => (
                 <motion.div
@@ -198,7 +217,7 @@ export function InstitutionalDashboard() {
 
               <div className="glass-panel overflow-hidden border-white/[0.03] min-h-[400px] flex flex-col bg-white/[0.01]">
                 <div className="p-8 border-b border-white/[0.03] flex justify-between items-center bg-[#0B0F1A]/50">
-                  <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Cognitive Acceleration</h3>
+                  <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Cognitive Acceleration Projection</h3>
                   <TrendingUp className="w-3 h-3 text-emerald-500 opacity-50" />
                 </div>
                 <div className="flex-1">
@@ -275,7 +294,21 @@ export function InstitutionalDashboard() {
               </div>
             </div>
           </motion.div>
-        ) : (
+        )}
+
+        {viewMode === 'topology' && (
+          <motion.div
+            key="topology"
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 1.02 }}
+            className="w-full h-[70vh] glass-panel border-white/[0.03] overflow-hidden"
+          >
+             <CognitiveTopology />
+          </motion.div>
+        )}
+
+        {viewMode === 'comparison' && (
           <motion.div
             key="comparison"
             initial={{ opacity: 0, y: 10 }}
@@ -283,7 +316,12 @@ export function InstitutionalDashboard() {
             exit={{ opacity: 0, scale: 0.98 }}
             className="grid grid-cols-1 md:grid-cols-2 gap-8"
           >
-            {cohorts.map((cohort, i) => (
+            {[
+              { name: 'Grade 09', mastery: 68, risk: 18, color: 'text-blue-500' },
+              { name: 'Grade 10', mastery: 72, risk: 24, color: 'text-emerald-500' },
+              { name: 'Grade 11', mastery: 84, risk: 8, color: 'text-amber-500' },
+              { name: 'Grade 12', mastery: 91, risk: 4, color: 'text-rose-500' },
+            ].map((cohort, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, x: -20 }}
