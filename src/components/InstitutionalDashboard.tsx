@@ -2,13 +2,15 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Users, Activity, AlertTriangle, BookOpen, GraduationCap, TrendingUp, Search, BarChart3, Globe, Zap, Cpu, Wifi, Command, Share2 } from 'lucide-react';
+import { Users, Activity, AlertTriangle, BookOpen, GraduationCap, TrendingUp, Search, BarChart3, Globe, Zap, Cpu, Wifi, Command, Share2, LayoutGrid, MonitorPlay } from 'lucide-react';
 import { HeatmapSVG } from './HeatmapSVG';
 import { TrendChart } from './TrendChart';
 import { StudentModal } from './StudentModal';
 import { InstitutionalPDF } from './InstitutionalPDF';
 import { CommandPalette } from './CommandPalette';
 import { CognitiveTopology } from './CognitiveTopology';
+import { ClassroomMap } from './ClassroomMap';
+import { TeacherCoPilot } from './TeacherCoPilot';
 
 export function InstitutionalDashboard() {
   const [selectedStudent, setSelectedStudent] = useState<any>(null);
@@ -16,7 +18,7 @@ export function InstitutionalDashboard() {
   const [isCommandOpen, setIsCommandOpen] = useState(false);
   const [filter, setFilter] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
-  const [viewMode, setViewMode] = useState<'standard' | 'comparison' | 'topology'>('standard');
+  const [viewMode, setViewMode] = useState<'standard' | 'comparison' | 'topology' | 'teacher'>('standard');
   const [neuralPulse, setNeuralPulse] = useState(false);
   
   // Simulation State
@@ -145,13 +147,19 @@ export function InstitutionalDashboard() {
               onClick={() => setViewMode('comparison')}
               className={`flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest px-4 py-2 rounded-full border transition-all ${viewMode === 'comparison' ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-600/20' : 'border-white/10 text-slate-500 hover:text-white'}`}
             >
-              <BarChart3 className="w-3 h-3" /> Cohort Cross-Section
+              <BarChart3 className="w-3 h-3" /> Cohorts
             </button>
             <button 
               onClick={() => setViewMode('topology')}
               className={`flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest px-4 py-2 rounded-full border transition-all ${viewMode === 'topology' ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-600/20' : 'border-white/10 text-slate-500 hover:text-white'}`}
             >
-              <Share2 className="w-3 h-3" /> Neural Topology
+              <Share2 className="w-3 h-3" /> Topology
+            </button>
+            <button 
+              onClick={() => setViewMode('teacher')}
+              className={`flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest px-4 py-2 rounded-full border transition-all ${viewMode === 'teacher' ? 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-600/20' : 'border-white/10 text-slate-500 hover:text-white'}`}
+            >
+              <MonitorPlay className="w-3 h-3" /> Teacher Mode
             </button>
           </div>
         </motion.div>
@@ -294,6 +302,30 @@ export function InstitutionalDashboard() {
               </div>
             </div>
           </motion.div>
+        )}
+
+        {viewMode === 'teacher' && (
+           <motion.div
+             key="teacher"
+             initial={{ opacity: 0, y: 10 }}
+             animate={{ opacity: 1, y: 0 }}
+             exit={{ opacity: 0, scale: 0.98 }}
+             className="grid grid-cols-1 lg:grid-cols-[1fr,350px] gap-8 h-[70vh]"
+           >
+              <div className="glass-panel border-white/[0.03] overflow-hidden flex flex-col">
+                 <div className="p-8 border-b border-white/[0.03] flex justify-between items-center bg-[#0B0F1A]/50">
+                    <h3 className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Classroom Velocity Mapping</h3>
+                    <div className="flex items-center gap-4">
+                       <span className="text-[8px] font-bold text-blue-500 uppercase">30 Learners Synchronized</span>
+                       <LayoutGrid className="w-3 h-3 text-slate-700" />
+                    </div>
+                 </div>
+                 <div className="flex-1">
+                    <ClassroomMap />
+                 </div>
+              </div>
+              <TeacherCoPilot />
+           </motion.div>
         )}
 
         {viewMode === 'topology' && (
