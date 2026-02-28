@@ -1,18 +1,44 @@
 "use client";
 
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Users, Activity, AlertTriangle, BookOpen, GraduationCap, TrendingUp } from 'lucide-react';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Users, Activity, AlertTriangle, BookOpen, GraduationCap, TrendingUp, Filter, Search, ChevronDown } from 'lucide-react';
 import { HeatmapSVG } from './HeatmapSVG';
 import { TrendChart } from './TrendChart';
+import { StudentModal } from './StudentModal';
 
 export function InstitutionalDashboard() {
+  const [selectedStudent, setSelectedStudent] = useState<any>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [filter, setFilter] = useState('All');
+  const [searchQuery, setSearchQuery] = useState('');
+
   const stats = [
     { label: 'Active Scans', value: '1,248', icon: Users, color: 'text-blue-500', border: 'border-blue-500/20' },
     { label: 'Avg Mastery', value: '76.4%', icon: GraduationCap, color: 'text-emerald-500', border: 'border-emerald-500/20' },
     { label: 'Critical Risk', value: '12%', icon: AlertTriangle, color: 'text-rose-500', border: 'border-rose-500/20' },
     { label: 'Weakest Link', value: 'Quadratic', icon: BookOpen, color: 'text-amber-500', border: 'border-amber-500/20' },
   ];
+
+  const students = [
+    { id: '2409', grade: '10', subject: 'Math', risk: 82, status: 'Critical' },
+    { id: '2410', grade: '11', subject: 'Math', risk: 45, status: 'Stable' },
+    { id: '2411', grade: '10', subject: 'Math', risk: 78, status: 'Critical' },
+    { id: '2412', grade: '12', subject: 'Math', risk: 32, status: 'Stable' },
+    { id: '2413', grade: '10', subject: 'Math', risk: 89, status: 'Critical' },
+    { id: '2414', grade: '9', subject: 'Math', risk: 55, status: 'At-Risk' },
+  ];
+
+  const filteredStudents = students.filter(s => {
+    const matchesSearch = s.id.includes(searchQuery);
+    const matchesFilter = filter === 'All' || s.status === filter;
+    return matchesSearch && matchesFilter;
+  });
+
+  const handleStudentClick = (student: any) => {
+    setSelectedStudent(student);
+    setIsModalOpen(true);
+  };
 
   return (
     <div className="min-h-screen pt-24 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
@@ -53,7 +79,7 @@ export function InstitutionalDashboard() {
           >
             <div className="flex justify-between items-center">
               <span className="text-[10px] font-bold tracking-widest text-slate-500 uppercase">{stat.label}</span>
-              <stat.icon className={`w-4 h-4 \${stat.color} opacity-40 group-hover:opacity-100 transition-opacity`} />
+              <stat.icon className={`w-4 h-4 ${stat.color} opacity-40 group-hover:opacity-100 transition-opacity`} />
             </div>
             <div className="text-3xl font-light text-white tracking-tight">{stat.value}</div>
           </motion.div>
@@ -62,7 +88,6 @@ export function InstitutionalDashboard() {
 
       {/* MAIN VISUALS */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
-        {/* Heatmap Section */}
         <motion.div 
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -78,7 +103,6 @@ export function InstitutionalDashboard() {
           </div>
         </motion.div>
 
-        {/* Trend Section */}
         <motion.div 
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -95,46 +119,87 @@ export function InstitutionalDashboard() {
         </motion.div>
       </div>
 
-      {/* STUDENT GRID */}
+      {/* STUDENT GRID CONTROLS */}
       <motion.div 
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.6 }}
         className="glass-panel p-10 border-white/[0.03]"
       >
-        <div className="flex justify-between items-center mb-10">
-          <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-500">Critical Intelligence Grid</h3>
-          <div className="flex gap-4">
-            <button className="text-[9px] font-bold text-blue-500 border border-blue-500/30 px-4 py-1.5 rounded-full hover:bg-blue-500/5 transition-all uppercase tracking-widest">Generate Report</button>
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-12">
+          <div>
+            <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-slate-500 mb-2">Critical Intelligence Grid</h3>
+            <p className="text-slate-600 text-[10px] uppercase tracking-widest leading-none">Showing {filteredStudents.length} identified clusters</p>
+          </div>
+          <div className="flex flex-wrap gap-4 w-full lg:w-auto">
+            <div className="relative flex-1 lg:w-64">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-600" />
+              <input 
+                type="text" 
+                placeholder="Search ID..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-white/5 border border-white/10 rounded-full pl-10 pr-4 py-2.5 text-[10px] text-white focus:outline-none focus:border-blue-500/40 transition-all uppercase tracking-widest"
+              />
+            </div>
+            <div className="flex gap-2">
+              {['All', 'Critical', 'At-Risk', 'Stable'].map((f) => (
+                <button
+                  key={f}
+                  onClick={() => setFilter(f)}
+                  className={`px-4 py-2.5 rounded-full text-[9px] font-bold uppercase tracking-widest transition-all border ${filter === f ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white/5 border-white/10 text-slate-500 hover:text-white'}`}
+                >
+                  {f}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-           {[...Array(6)].map((_, i) => (
+           {filteredStudents.map((s, i) => (
              <motion.div 
-               key={i} 
+               key={s.id} 
+               layout
+               initial={{ opacity: 0 }}
+               animate={{ opacity: 1 }}
                whileHover={{ y: -4 }}
-               className="p-6 rounded-2xl bg-white/[0.02] border border-white/[0.05] hover:border-blue-500/20 hover:bg-white/[0.04] transition-all group flex flex-col justify-between min-h-[140px]"
+               onClick={() => handleStudentClick(s)}
+               className="p-6 rounded-2xl bg-white/[0.02] border border-white/[0.05] hover:border-blue-500/20 hover:bg-white/[0.04] transition-all group flex flex-col justify-between min-h-[140px] cursor-pointer"
              >
                 <div className="flex justify-between items-start mb-4">
                   <div>
-                    <p className="text-[9px] font-bold text-slate-600 uppercase tracking-widest mb-1">Grade 10 • Mathematics</p>
-                    <p className="text-white text-sm font-medium tracking-tight">Student-ID-{(2409 + i).toString()}</p>
+                    <p className="text-[9px] font-bold text-slate-600 uppercase tracking-widest mb-1">Grade {s.grade} • Mathematics</p>
+                    <p className="text-white text-sm font-medium tracking-tight">Student-ID-{s.id}</p>
                   </div>
                   <div className="flex flex-col items-end">
-                    <span className="text-[10px] font-bold text-rose-500 uppercase tracking-tighter">High Risk</span>
-                    <span className="text-2xl font-light text-white tracking-tighter">{68 + i * 3}%</span>
+                    <span className={`text-[10px] font-bold uppercase tracking-tighter ${s.status === 'Critical' ? 'text-rose-500' : s.status === 'At-Risk' ? 'text-amber-500' : 'text-emerald-500'}`}>
+                      {s.status}
+                    </span>
+                    <span className="text-2xl font-light text-white tracking-tighter">{s.risk}%</span>
                   </div>
                 </div>
                 
                 <div className="pt-4 border-t border-white/[0.03] flex justify-between items-center">
                   <span className="text-[8px] font-bold text-slate-600 uppercase tracking-widest">Last Activity: 12m ago</span>
-                  <button className="opacity-0 group-hover:opacity-100 transition-opacity text-[8px] font-bold text-blue-500 uppercase tracking-widest">View Profile →</button>
+                  <button className="opacity-0 group-hover:opacity-100 transition-opacity text-[8px] font-bold text-blue-500 uppercase tracking-widest">Analyze Data →</button>
                 </div>
              </motion.div>
            ))}
         </div>
+
+        {filteredStudents.length === 0 && (
+          <div className="text-center py-20 bg-white/[0.01] rounded-2xl border border-dashed border-white/10">
+            <p className="text-slate-600 text-[10px] font-bold uppercase tracking-widest">No signals detected in this range.</p>
+          </div>
+        )}
       </motion.div>
+
+      <StudentModal 
+        student={selectedStudent} 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+      />
     </div>
   );
 }
