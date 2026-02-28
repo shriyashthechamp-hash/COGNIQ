@@ -5,7 +5,7 @@ import { AlertTriangle } from 'lucide-react';
 export function EarlyWarningBanner({ riskScore }: { riskScore: number }) {
   return (
     <AnimatePresence>
-      {riskScore > 60 && (
+      {riskScore > 65 && (
         <motion.div
           initial={{ opacity: 0, y: -20, height: 0 }}
           animate={{ opacity: 1, y: 0, height: 'auto' }}
@@ -18,8 +18,8 @@ export function EarlyWarningBanner({ riskScore }: { riskScore: number }) {
                <AlertTriangle className="w-5 h-5 animate-pulse" />
              </div>
              <div>
-               <h4 className="text-white font-bold tracking-wide">⚠ Cognitive Instability Detected</h4>
-               <p className="text-slate-300 text-sm mt-0.5">Early Intervention Recommended</p>
+               <h4 className="text-white font-bold tracking-wide">⚠ Elevated Academic Risk Detected</h4>
+               <p className="text-slate-300 text-sm mt-0.5">Intervention Recommended</p>
              </div>
           </div>
         </motion.div>
