@@ -1,23 +1,55 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Users, Activity, AlertTriangle, BookOpen, GraduationCap, TrendingUp, Search, BarChart3, Globe, Zap } from 'lucide-react';
+import { Users, Activity, AlertTriangle, BookOpen, GraduationCap, TrendingUp, Search, BarChart3, Globe, Zap, Cpu, Wifi, Command } from 'lucide-react';
 import { HeatmapSVG } from './HeatmapSVG';
 import { TrendChart } from './TrendChart';
 import { StudentModal } from './StudentModal';
 import { InstitutionalPDF } from './InstitutionalPDF';
+import { CommandPalette } from './CommandPalette';
 
 export function InstitutionalDashboard() {
   const [selectedStudent, setSelectedStudent] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCommandOpen, setIsCommandOpen] = useState(false);
   const [filter, setFilter] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<'standard' | 'comparison'>('standard');
+  
+  // Simulation State
+  const [liveStats, setLiveStats] = useState({
+    scans: 1248,
+    mastery: 76.4,
+    ping: 24
+  });
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsCommandOpen(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  // Live Simulation Engine
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setLiveStats(prev => ({
+        scans: prev.scans + (Math.random() > 0.7 ? 1 : 0),
+        mastery: +(prev.mastery + (Math.random() - 0.5) * 0.1).toFixed(1),
+        ping: Math.floor(20 + Math.random() * 10)
+      }));
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
 
   const stats = [
-    { label: 'Active Scans', value: '1,248', icon: Users, color: 'text-blue-500', border: 'border-blue-500/20' },
-    { label: 'Avg Mastery', value: '76.4%', icon: GraduationCap, color: 'text-emerald-500', border: 'border-emerald-500/20' },
+    { label: 'Active Scans', value: liveStats.scans.toLocaleString(), icon: Users, color: 'text-blue-500', border: 'border-blue-500/20' },
+    { label: 'Avg Mastery', value: `${liveStats.mastery}%`, icon: GraduationCap, color: 'text-emerald-500', border: 'border-emerald-500/20' },
     { label: 'Critical Risk', value: '12%', icon: AlertTriangle, color: 'text-rose-500', border: 'border-rose-500/20' },
     { label: 'Weakest Link', value: 'Quadratic', icon: BookOpen, color: 'text-amber-500', border: 'border-amber-500/20' },
   ];
@@ -44,14 +76,39 @@ export function InstitutionalDashboard() {
     return matchesSearch && matchesFilter;
   });
 
-  const handleStudentClick = (student: any) => {
-    setSelectedStudent(student);
-    setIsModalOpen(true);
+  const handleCommandAction = (action: string) => {
+    if (action === 'search-students') {
+      const el = document.getElementById('search-input');
+      el?.focus();
+    }
+    if (action === 'export-report') {
+      // Logic is handled by InstitutionalPDF
+    }
+    if (action === 'clear-filters') {
+      setFilter('All');
+      setSearchQuery('');
+    }
   };
 
   return (
     <div id="institutional-dashboard" className="min-h-screen pt-24 pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
-      {/* HEADER */}
+      <CommandPalette 
+        isOpen={isCommandOpen} 
+        onClose={() => setIsCommandOpen(false)} 
+        onSelectAction={handleCommandAction}
+      />
+
+      <div className="mb-8 flex justify-end gap-6 border-b border-white/[0.03] pb-4">
+        <div className="flex items-center gap-2">
+           <Cpu className="w-3 h-3 text-blue-500/50" />
+           <span className="text-[8px] font-bold text-slate-700 uppercase tracking-[0.2em]">Core Usage: 14%</span>
+        </div>
+        <div className="flex items-center gap-2">
+           <Wifi className="w-3 h-3 text-emerald-500/50" />
+           <span className="text-[8px] font-bold text-slate-700 uppercase tracking-[0.2em]">Latency: {liveStats.ping}ms</span>
+        </div>
+      </div>
+
       <div className="mb-12 flex flex-col md:flex-row justify-between items-start md:items-end gap-10">
         <motion.div 
           initial={{ opacity: 0, x: -20 }}
@@ -83,9 +140,13 @@ export function InstitutionalDashboard() {
         
         <div className="flex items-center gap-6">
           <InstitutionalPDF />
-          <div className="hidden md:flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-slate-500 bg-white/5 px-4 py-2 rounded-full border border-white/10">
+          <div className="hidden md:flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-slate-500 bg-white/5 px-4 py-2 rounded-full border border-white/10 group cursor-pointer" onClick={() => setIsCommandOpen(true)}>
+            <div className="flex items-center gap-1 opacity-40 group-hover:opacity-100 transition-opacity">
+              <Command className="w-3 h-3" />
+              <span>K</span>
+            </div>
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            Live Network Active
+            Live
           </div>
         </div>
       </div>
@@ -99,7 +160,6 @@ export function InstitutionalDashboard() {
             exit={{ opacity: 0, scale: 0.98 }}
             className="space-y-10"
           >
-            {/* STATS GRID */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
               {stats.map((stat, i) => (
                 <motion.div
@@ -113,12 +173,18 @@ export function InstitutionalDashboard() {
                     <span className="text-[10px] font-bold tracking-widest text-slate-500 uppercase">{stat.label}</span>
                     <stat.icon className={`w-4 h-4 ${stat.color} opacity-40 group-hover:opacity-100 transition-opacity`} />
                   </div>
-                  <div className="text-3xl font-light text-white tracking-tight">{stat.value}</div>
+                  <motion.div 
+                    key={stat.value}
+                    initial={{ opacity: 0.5, scale: 0.98 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="text-3xl font-light text-white tracking-tight"
+                  >
+                    {stat.value}
+                  </motion.div>
                 </motion.div>
               ))}
             </div>
 
-            {/* MAIN VISUALS */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
               <div className="glass-panel overflow-hidden border-white/[0.03] min-h-[400px] flex flex-col bg-white/[0.01]">
                 <div className="p-8 border-b border-white/[0.03] flex justify-between items-center bg-[#0B0F1A]/50">
@@ -141,7 +207,6 @@ export function InstitutionalDashboard() {
               </div>
             </div>
 
-            {/* STUDENT GRID */}
             <div className="glass-panel p-10 border-white/[0.03]">
               <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 mb-12">
                 <div>
@@ -152,6 +217,7 @@ export function InstitutionalDashboard() {
                   <div className="relative flex-1 lg:w-64">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-600" />
                     <input 
+                      id="search-input"
                       type="text" 
                       placeholder="Search ID..."
                       value={searchQuery}
@@ -181,7 +247,10 @@ export function InstitutionalDashboard() {
                      initial={{ opacity: 0 }}
                      animate={{ opacity: 1 }}
                      whileHover={{ y: -4 }}
-                     onClick={() => handleStudentClick(s)}
+                     onClick={() => {
+                        setSelectedStudent(s);
+                        setIsModalOpen(true);
+                     }}
                      className="p-6 rounded-2xl bg-white/[0.02] border border-white/[0.05] hover:border-blue-500/20 hover:bg-white/[0.04] transition-all group flex flex-col justify-between min-h-[140px] cursor-pointer"
                    >
                       <div className="flex justify-between items-start mb-4">
