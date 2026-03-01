@@ -2,7 +2,8 @@
 ### The Learning Intelligence Layer  
 **Mapping Understanding. Preventing Academic Dropout.**
 
-🌐 **[Live Deployment](https://cogniq-blue.vercel.app/)**
+🌐 **[Live Deployment](https://cogniq-blue.vercel.app/)**  
+📊 **[Presentation Deck](https://www.canva.com/design/DAGzJjEqu4U/9ud2rgNmgTRAoPXhZZLV7g/edit?utm_content=DAGzJjEqu4U&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)**
 
 ---
 
