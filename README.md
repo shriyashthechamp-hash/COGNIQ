@@ -2,6 +2,8 @@
 ### The Learning Intelligence Layer  
 **Mapping Understanding. Preventing Academic Dropout.**
 
+🌐 **[Live Deployment](https://cogniq-blue.vercel.app/)**
+
 ---
 
 ## 🚀 Overview
@@ -52,7 +54,7 @@ The system transforms a 5-question diagnostic into a structured intelligence das
 
 ## 🏗 System Architecture
 
-```
+\`\`\`
 User
   ↓
 Frontend (Next.js + Tailwind + Framer Motion)
@@ -64,7 +66,7 @@ Mastery & Risk Engine (Rule-Based)
 AI Insight Layer (Groq LLM)
   ↓
 Dashboard Rendering
-```
+\`\`\`
 
 ---
 
