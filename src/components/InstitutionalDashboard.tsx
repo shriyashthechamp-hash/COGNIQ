@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Users, Activity, AlertTriangle, BookOpen, GraduationCap, TrendingUp, Search, BarChart3, Globe, Zap, Cpu, Wifi, Command, Share2, LayoutGrid, MonitorPlay } from 'lucide-react';
+import { Users, Activity, AlertTriangle, BookOpen, GraduationCap, TrendingUp, Search, BarChart3, Globe, Zap, Cpu, Wifi, Command, Share2, LayoutGrid, MonitorPlay, HeartPulse } from 'lucide-react';
 import { HeatmapSVG } from './HeatmapSVG';
 import { TrendChart } from './TrendChart';
 import { StudentModal } from './StudentModal';
@@ -25,7 +25,8 @@ export function InstitutionalDashboard() {
   const [liveStats, setLiveStats] = useState({
     scans: 1248,
     mastery: 76.4,
-    ping: 24
+    ping: 24,
+    fatigue: 12
   });
 
   useEffect(() => {
@@ -51,7 +52,8 @@ export function InstitutionalDashboard() {
       setLiveStats(prev => ({
         scans: prev.scans + (Math.random() > 0.7 ? 1 : 0),
         mastery: +(prev.mastery + (Math.random() - 0.5) * 0.1).toFixed(1),
-        ping: Math.floor(20 + Math.random() * 10)
+        ping: Math.floor(20 + Math.random() * 10),
+        fatigue: Math.max(0, Math.min(100, prev.fatigue + (Math.random() > 0.6 ? 1 : -1)))
       }));
     }, 3000);
     return () => clearInterval(interval);
@@ -60,8 +62,8 @@ export function InstitutionalDashboard() {
   const stats = [
     { label: 'Active Scans', value: liveStats.scans.toLocaleString(), icon: Users, color: 'text-blue-500', border: 'border-blue-500/20' },
     { label: 'Avg Mastery', value: `${liveStats.mastery}%`, icon: GraduationCap, color: 'text-emerald-500', border: 'border-emerald-500/20' },
+    { label: 'Cognitive Fatigue', value: `${liveStats.fatigue}%`, icon: HeartPulse, color: 'text-amber-500', border: 'border-amber-500/20' },
     { label: 'Critical Risk', value: '12%', icon: AlertTriangle, color: 'text-rose-500', border: 'border-rose-500/20' },
-    { label: 'Weakest Link', value: 'Quadratic', icon: BookOpen, color: 'text-amber-500', border: 'border-amber-500/20' },
   ];
 
   const students = [
