@@ -3,7 +3,8 @@
 **Mapping Understanding. Preventing Academic Dropout.**
 
 🌐 **[Live Deployment](https://cogniq-blue.vercel.app/)**  
-📊 **[Presentation Deck](https://www.canva.com/design/DAGzJjEqu4U/9ud2rgNmgTRAoPXhZZLV7g/edit?utm_content=DAGzJjEqu4U&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)**
+📊 **[Presentation Deck](https://www.canva.com/design/DAGzJjEqu4U/9ud2rgNmgTRAoPXhZZLV7g/edit?utm_content=DAGzJjEqu4U&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)**  
+🎬 **[Demo Video](https://drive.google.com/file/d/1LRzF-KBnoEXo6lM5EDtdrhBZ2c6PR8Oq/view?usp=sharing)**
 
 ---
 
